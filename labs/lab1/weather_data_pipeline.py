@@ -1,23 +1,33 @@
 import requests
 import csv
 
-URL = ""
+URL = "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m"
 
 ### Part 1. Read Operation (Extract)
 def fetch_weather_data():
     """Fetches weather data for the past 10 days."""
-    response = requests.get(URL)
-
-    ## TODO: complete the code, the output should be data in json format
-
+    #response = requests.get(URL,params={"past_days": 10})
+    response = requests.get(URL + "&past_days=10")
+    print(response.json())
 
 ### Part 2. Write Operation (Load)
 def save_to_csv(data, filename):
     """Saves weather data to a CSV file."""
-    with open(filename, "<ENTER MODE HERE>", newline='', encoding='utf-8') as file:
-
+    with open(filename, "w", newline='', encoding='utf-8') as file:
         ### TODO: complete rest of the code, HINT: write the header row and body separately
+        writer = csv.writer(file)
+        timestamps = data["hourly"]["time"]  # Extract timestamps
+        temperatures = data["hourly"]["temperature_2m"]  # Extract temperature values
+        humidity=data["hourly"]["relative_humidity_2m"]
+        windspeed=data["hourly"]["wind_speed_10m"]
+            
+        # Write the header row
+        writer.writerow(["Timestamp", "Temperature (°C)","humidity","windspeed"])
 
+        # Write the data rows
+        for timestamp, temp in zip(timestamps, temperatures,humidity,windspeed):
+            writer.writerow([timestamp, temp,humid,wind])
+        
         return None
 
 ### Part 3. Cleaning Operation (Transform)
@@ -65,11 +75,12 @@ def summarize_data(filename):
 
 if __name__ == "__main__":
     weather_data = fetch_weather_data()
-    if weather_data:
-        save_to_csv(weather_data, "weather_data.csv")
-        print("Weather data saved to weather_data.csv")
+    
+    save_to_csv(weather_data, "weather_data.csv")
+    print(f"CSV file '{"weather_data.csv"}' has been saved successfully.")
         #clean_data("weather_data.csv", "cleaned_data.csv")
         #print("Weather data clean saved to cleaned_data.csv")
         #summarize_data("cleaned_data.csv")
+    #weather_data()
         
 
